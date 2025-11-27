@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="light" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Family Digital Safety Test</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        glass: {
+                            light: 'rgba(255, 255, 255, 0.7)',
+                            dark: 'rgba(17, 24, 39, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.2)',
+                            borderDark: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    },
+                    screens: {
+                        'xs': '375px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            /* Prevent bounce on mobile */
+            overscroll-behavior-y: none;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-panel {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Radio Buttons */
+        .custom-radio:checked + div {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+        
+        .dark .custom-radio:checked + div {
+            border-color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+        }
+        
+        .custom-radio:checked + div .check-icon {
+            opacity: 1;
+        }
+
+        /* Gauge Animation */
+        .gauge-container {
+            position: relative;
+            width: 180px;
+            height: 90px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        @media (min-width: 640px) {
+            .gauge-container {
+                width: 200px;
+                height: 100px;
+            }
+        }
+        
+        .gauge-body {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            top: 0;
+        }
+        @media (min-width: 640px) { .gauge-body { width: 200px; height: 200px; } }
+        
+        .dark .gauge-body {
+            background: #374151;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background: #22c55e;
+            border-radius: 50%;
+            top: 0;
+            clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+            transform: rotate(0deg);
+            transform-origin: center;
+            transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @media (min-width: 640px) { .gauge-fill { width: 200px; height: 200px; } }
+
+        .gauge-cover {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+        @media (min-width: 640px) { 
+            .gauge-cover { width: 160px; height: 160px; top: 20px; left: 20px; } 
+        }
+
+        .dark .gauge-cover {
+            background: rgba(31, 41, 55, 0.8);
+        }
+        
+        /* Scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-[100dvh] flex items-center justify-center p-0 sm:p-4 transition-colors duration-300">
+
+    <!-- Main Container (Glassmorphism) -->
+    <!-- Responsive sizing: Full width/height on mobile, Card on desktop -->
+    <div class="glass-panel bg-glass-light dark:bg-glass-dark w-full max-w-lg h-[100dvh] sm:h-auto sm:min-h-[650px] sm:rounded-3xl shadow-2xl border-0 sm:border border-glass-border dark:border-glass-borderDark overflow-hidden relative transition-all duration-300 flex flex-col">
+        
+        <!-- Header / Decorative Top -->
+        <div class="h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 w-full absolute top-0 left-0 z-20"></div>
+
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" class="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/50 dark:bg-black/30 hover:bg-white/80 dark:hover:bg-black/50 transition-all text-gray-800 dark:text-gray-200 backdrop-blur-sm border border-white/20 shadow-sm active:scale-95">
+            <i id="themeIcon" class="fa-solid fa-moon text-lg w-6 h-6 flex items-center justify-center"></i>
+        </button>
+
+        <!-- PAGE 1: HOME PAGE -->
+        <div id="homePage" class="flex-1 p-6 sm:p-8 flex flex-col items-center justify-center text-center fade-in overflow-y-auto">
+            <div class="mt-auto sm:mt-0"></div> <!-- Spacer for vertical center on mobile -->
+            
+            <div class="bg-blue-100/80 dark:bg-blue-900/50 p-5 sm:p-6 rounded-full mb-6 backdrop-blur-sm shadow-inner transform transition hover:scale-105 duration-300">
+                <i class="fa-solid fa-shield-halved text-4xl sm:text-5xl text-blue-600 dark:text-blue-400"></i>
+            </div>
+            
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-3">Digital Safety Test</h1>
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-8 sm:mb-10 leading-relaxed max-w-xs sm:max-w-none mx-auto">
+                How safe is your family's digital life? Take this quick assessment to find out your safety score.
+            </p>
+            
+            <div class="space-y-3 w-full max-w-sm mx-auto">
+                <div class="flex items-center gap-4 text-gray-700 dark:text-gray-200 bg-white/40 dark:bg-black/20 p-3 sm:p-4 rounded-xl text-sm text-left border border-white/30 dark:border-white/5 shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-clock text-blue-500 dark:text-blue-400"></i>
+                    </div>
+                    <span>Takes less than 2 minutes</span>
+                </div>
+                <div class="flex items-center gap-4 text-gray-700 dark:text-gray-200 bg-white/40 dark:bg-black/20 p-3 sm:p-4 rounded-xl text-sm text-left border border-white/30 dark:border-white/5 shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0">
+                         <i class="fa-solid fa-check-circle text-green-500 dark:text-green-400"></i>
+                    </div>
+                    <span>Get personalized tips</span>
+                </div>
+            </div>
+
+            <div class="mt-auto sm:mt-10 w-full mb-4 sm:mb-0">
+                <button onclick="goToPage('inputPage')" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:scale-[1.02] active:scale-95 border border-white/20 text-lg">
+                    Start Test
+                </button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: INPUT PAGE (MCQ) -->
+        <div id="inputPage" class="hidden h-full flex flex-col relative">
+            <!-- Sticky Header -->
+            <div class="flex justify-between items-center px-5 py-4 sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-white/20 dark:border-white/5 pt-safe-top">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white">Assessment</h2>
+                <span class="text-xs font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">6 Questions</span>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 sm:space-y-8 pb-32 no-scrollbar scroll-smooth" id="questionsContainer">
+                <form id="quizForm" class="space-y-6 sm:space-y-8">
+                    
+                    <!-- Q1 -->
+                    <div class="question-block fade-in">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-users text-indigo-500 mt-0.5"></i> 
+                            <span>1. Social Media Usage</span>
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 pl-1">How often do you check social media during family time?</p>
+                        <div class="space-y-2">
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q1" value="10" class="custom-radio sr-only" required>
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Constantly / Often</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q1" value="20" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Occasionally</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q1" value="30" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Rarely / Never</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="question-block fade-in">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-share-nodes text-pink-500 mt-0.5"></i> 2. Sharing Info
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 pl-1">Do you post vacation photos while you are still away from home?</p>
+                        <div class="space-y-2">
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q2" value="10" class="custom-radio sr-only" required>
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, publicly</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q2" value="20" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, but only to friends</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q2" value="30" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No, I post after returning</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="question-block fade-in">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-mobile-screen text-blue-400 mt-0.5"></i> 3. Screen Time Rules
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 pl-1">Does your family have specific "no-device" zones or times?</p>
+                        <div class="space-y-2">
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q3" value="10" class="custom-radio sr-only" required>
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No rules</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q3" value="20" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Flexible / Sometimes</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q3" value="30" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, strict rules</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="question-block fade-in">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-lock text-green-500 mt-0.5"></i> 4. Privacy Settings
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 pl-1">When did you last check the privacy settings on your accounts?</p>
+                        <div class="space-y-2">
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q4" value="10" class="custom-radio sr-only" required>
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Never / I don't know how</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q4" value="20" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">More than a year ago</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q4" value="30" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Within the last 6 months</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="question-block fade-in">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-paper-plane text-orange-500 mt-0.5"></i> 5. Forwarding Messages
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 pl-1">Do you verify news or messages before forwarding them?</p>
+                        <div class="space-y-2">
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q5" value="10" class="custom-radio sr-only" required>
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Rarely / I trust the sender</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q5" value="20" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Sometimes</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q5" value="30" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Always</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Q6 -->
+                    <div class="question-block fade-in">
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-key text-purple-500 mt-0.5"></i> 6. Password Strength
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 pl-1">Do you use the same password for multiple accounts?</p>
+                        <div class="space-y-2">
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q6" value="10" class="custom-radio sr-only" required>
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Yes, it's easier to remember</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q6" value="20" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">For some unimportant accounts</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer block relative group tap-highlight-transparent">
+                                <input type="radio" name="q6" value="30" class="custom-radio sr-only">
+                                <div class="p-4 sm:p-3 border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl sm:rounded-lg transition-all flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 backdrop-blur-sm">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Never, I use unique passwords</span>
+                                    <i class="fa-solid fa-circle-check check-icon opacity-0 text-blue-600 dark:text-blue-400 transition-opacity"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Sticky Submit Button (Fixed) -->
+            <div class="sticky bottom-0 w-full p-4 border-t border-white/20 dark:border-white/10 bg-white/80 dark:bg-gray-900/90 backdrop-blur-lg shadow-[0_-5px_20px_rgba(0,0,0,0.1)] z-20 pb-safe-bottom">
+                <button type="button" onclick="calculateAndShowResult()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 text-lg">
+                    <span>See My Score</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- PAGE 3: RESULT PAGE -->
+        <div id="resultPage" class="hidden p-6 sm:p-8 flex-1 flex flex-col items-center justify-center text-center fade-in h-full overflow-y-auto">
+            <div class="mt-auto sm:mt-0"></div>
+
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-6 sm:mb-8">Your Digital Safety Score</h2>
+            
+            <!-- Gauge Animation -->
+            <div class="gauge-container mb-6 sm:mb-8">
+                <div class="gauge-body"></div>
+                <div id="gaugeFill" class="gauge-fill"></div>
+                <div class="gauge-cover">
+                    <span id="scoreValue" class="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-gray-200">0</span>
+                    <span class="text-gray-400 dark:text-gray-500 text-xs uppercase tracking-wide">out of 180</span>
+                </div>
+            </div>
+
+            <!-- Result Title -->
+            <h3 id="resultTitle" class="text-xl sm:text-2xl font-bold mb-3">Calculating...</h3>
+            
+            <!-- Result Tip -->
+            <div class="bg-blue-50/80 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-5 sm:p-6 rounded-2xl mb-8 w-full backdrop-blur-sm shadow-sm max-w-sm mx-auto">
+                <h4 class="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-3">Personalized Tip</h4>
+                <p id="resultTip" class="text-gray-700 dark:text-gray-300 text-sm sm:text-base italic leading-relaxed">"Loading tip..."</p>
+            </div>
+
+            <div class="w-full mt-auto sm:mt-0 mb-4 sm:mb-0">
+                <button onclick="restartQuiz()" class="w-full bg-gray-800 hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 text-white font-medium py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-rotate-right"></i> Retake Test
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const htmlTag = document.getElementById('htmlTag');
+            const icon = document.getElementById('themeIcon');
+            
+            if (htmlTag.classList.contains('dark')) {
+                htmlTag.classList.remove('dark');
+                htmlTag.classList.add('light');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                htmlTag.classList.remove('light');
+                htmlTag.classList.add('dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
+
+        // Navigation Logic
+        function goToPage(pageId) {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('inputPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.add('hidden');
+            
+            const page = document.getElementById(pageId);
+            page.classList.remove('hidden');
+            
+            // Re-trigger animation
+            page.classList.remove('fade-in');
+            void page.offsetWidth; // Trigger reflow
+            page.classList.add('fade-in');
+
+            // Scroll to top of questions container if entering input page
+            if(pageId === 'inputPage') {
+                const container = document.getElementById('questionsContainer');
+                if(container) container.scrollTop = 0;
+            }
+        }
+
+        function restartQuiz() {
+            // Reset form
+            const inputs = document.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => input.checked = false);
+            
+            // Reset Gauge
+            document.getElementById('gaugeFill').style.transform = 'rotate(0deg)';
+            
+            goToPage('homePage');
+        }
+
+        function calculateAndShowResult() {
+            // Check if all questions are answered
+            const questions = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
+            let totalScore = 0;
+            let allAnswered = true;
+
+            for (const q of questions) {
+                const selected = document.querySelector(`input[name="${q}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    // Find the question block
+                    const element = document.querySelector(`input[name="${q}"]`).closest('.question-block');
+                    
+                    // Visual cues for error
+                    element.classList.add('bg-red-50', 'dark:bg-red-900/20', 'border', 'border-red-200', 'dark:border-red-800', 'rounded-lg', 'p-2');
+                    setTimeout(() => element.classList.remove('bg-red-50', 'dark:bg-red-900/20', 'border', 'border-red-200', 'dark:border-red-800', 'rounded-lg', 'p-2'), 2000);
+                    
+                    // Scroll container to it
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    break;
+                }
+                totalScore += parseInt(selected.value);
+            }
+
+            if (!allAnswered) {
+                // Shake button or show toast - utilizing the button itself for feedback
+                const btn = document.querySelector('#inputPage button[type="button"]');
+                const originalText = btn.innerHTML;
+                const originalBg = btn.className; // Keep classes
+                
+                btn.innerHTML = '<span>Answer All Questions!</span> <i class="fa-solid fa-exclamation-circle"></i>';
+                btn.classList.add('bg-red-600', 'hover:bg-red-700');
+                btn.classList.remove('from-indigo-600', 'to-purple-600'); // Remove gradient temporarily
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                    btn.classList.add('from-indigo-600', 'to-purple-600'); // Add gradient back
+                }, 2000);
+                return;
+            }
+
+            // Determine Result Type
+            let resultColor = "";
+            let resultTitle = "";
+            let resultTip = "";
+            let gaugeColor = "";
+
+            if (totalScore >= 140) {
+                resultColor = "text-green-600 dark:text-green-400";
+                resultTitle = "Digital Guardian!";
+                gaugeColor = "#22c55e"; // Green
+                resultTip = "You have excellent digital hygiene! Keep updating your passwords regularly and stay vigilant against new threats.";
+            } else if (totalScore >= 100) {
+                resultColor = "text-yellow-600 dark:text-yellow-400";
+                resultTitle = "Digital Learner";
+                gaugeColor = "#eab308"; // Yellow
+                resultTip = "You are doing okay, but there are gaps. Try setting stricter screen time rules and review privacy settings on all family devices.";
+            } else {
+                resultColor = "text-red-600 dark:text-red-400";
+                resultTitle = "At Risk";
+                gaugeColor = "#ef4444"; // Red
+                resultTip = "Your digital safety needs immediate attention. Start by enabling Two-Factor Authentication and creating unique passwords today.";
+            }
+
+            // Update DOM
+            document.getElementById('scoreValue').innerText = totalScore;
+            
+            const titleEl = document.getElementById('resultTitle');
+            titleEl.innerText = resultTitle;
+            titleEl.className = `text-2xl sm:text-3xl font-bold mb-2 ${resultColor}`;
+
+            document.getElementById('resultTip').innerText = resultTip;
+
+            const gaugeFill = document.getElementById('gaugeFill');
+            gaugeFill.style.backgroundColor = gaugeColor;
+
+            // Show Page
+            goToPage('resultPage');
+
+            // Animate Gauge
+            setTimeout(() => {
+                const degrees = (totalScore / 180) * 180;
+                gaugeFill.style.transform = `rotate(${degrees}deg)`;
+            }, 100);
+        }
+    </script>
+</body>
+</html>
